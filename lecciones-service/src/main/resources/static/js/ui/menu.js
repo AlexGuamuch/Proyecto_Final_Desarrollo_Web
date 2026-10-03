@@ -110,5 +110,13 @@ export function crearMenus(barra) {
 
     window.addEventListener('resize', () => cerrar());
 
-    return { cerrar };
+    return {
+        cerrar,
+        /** Vuelve a colocar el panel abierto debajo de su botón (por ejemplo, tras cambiar el tamaño de letra). */
+        reposicionar() {
+            if (abierto) {
+                posicionar(abierto.boton, abierto.panel);
+            }
+        },
+    };
 }

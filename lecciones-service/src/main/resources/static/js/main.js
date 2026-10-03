@@ -73,10 +73,11 @@ async function mostrarListaLecciones() {
 async function seleccionarLeccion(id) {
     dlgAbrir.close();
     if (leccionActiva() && editor.tieneContenido()) {
+        const misma = leccionActiva().id === id;
         const continuar = await confirmar(dlgConfirmar, {
-            titulo: '¿Abrir otra lección?',
+            titulo: misma ? '¿Empezar de nuevo esta lección?' : '¿Abrir otra lección?',
             texto: AVISO_BORRADO,
-            aceptar: 'Abrir lección',
+            aceptar: misma ? 'Empezar de nuevo' : 'Abrir lección',
             cancelar: 'Seguir escribiendo',
         });
         if (!continuar) {
@@ -172,6 +173,8 @@ prepararConfiguracion({
     mas: $('btn-fuente-mas'),
     valor: $('fuente-actual'),
     radiosTema: [...document.querySelectorAll('input[name="tema"]')],
+    // La barra de menú crece con la letra: el panel de Configuración abierto se reubica.
+    alCambiarTamano: () => menus.reposicionar(),
 });
 prepararControlesFase2(consola);
 prepararAyuda();

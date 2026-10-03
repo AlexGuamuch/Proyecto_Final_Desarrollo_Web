@@ -2,7 +2,7 @@ import { FUENTE, ajustarTamanoFuente, establecerTema, tamanoFuente } from '../es
 
 // Tamaño de letra y tema. Se aplican con variables CSS sobre <html>; nada se guarda.
 
-export function prepararConfiguracion({ menos, mas, valor, radiosTema }) {
+export function prepararConfiguracion({ menos, mas, valor, radiosTema, alCambiarTamano = () => {} }) {
     const raiz = document.documentElement;
 
     function aplicarTamano(px) {
@@ -10,6 +10,7 @@ export function prepararConfiguracion({ menos, mas, valor, radiosTema }) {
         valor.textContent = `${px} px`;
         menos.disabled = px <= FUENTE.minimo;
         mas.disabled = px >= FUENTE.maximo;
+        alCambiarTamano(px);
     }
 
     function aplicarTema(nombre) {
