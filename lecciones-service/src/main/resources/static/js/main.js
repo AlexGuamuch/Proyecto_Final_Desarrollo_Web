@@ -90,7 +90,13 @@ async function seleccionarLeccion(id) {
         editor.limpiar();
         editor.habilitar(true);
         consola.escribir('sistema', `Lección cargada: ${leccion.titulo}. Objetivo: ${textoObjetivo(leccion.objetivo)}.`);
-        editor.enfocar();
+        // Con mouse y teclado se puede empezar a escribir de inmediato. En pantallas táctiles,
+        // enfocar el editor abriría el teclado virtual encima de la lección que hay que leer.
+        if (window.matchMedia('(pointer: fine)').matches) {
+            editor.enfocar();
+        } else {
+            $('contenido-leccion').focus({ preventScroll: true });
+        }
     } catch (error) {
         consola.escribir('sistema', `No se pudo abrir la lección ${id}. ${error.message}`);
     }
