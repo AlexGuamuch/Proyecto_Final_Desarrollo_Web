@@ -1,0 +1,21 @@
+# Compilación
+target/
+*.class
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Node (solo para exportar diagramas)
+node_modules/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Entregables generados
+proyecto-fase-*.zip
