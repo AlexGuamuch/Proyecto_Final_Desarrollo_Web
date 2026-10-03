@@ -19,3 +19,9 @@ Thumbs.db
 
 # Entregables generados
 proyecto-fase-*.zip
+
+# Descarga original de las fuentes (en el proyecto solo van los woff2 de static/fonts)
+/Fonts/
+
+# Configuración local de Claude Code (vista previa)
+.claude/

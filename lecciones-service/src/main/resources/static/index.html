@@ -1,5 +1,232 @@
 <!doctype html>
 <html lang="es">
-<head><meta charset="utf-8"><title>Lecciones Java</title></head>
-<body><p>Interfaz en construcción.</p></body>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="description" content="Practica Java escribiendo el código a mano, sin autocompletado ni asistentes.">
+    <title>Práctica de Java</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/atkinson-hyperlegible-mono-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/app.css">
+    <script type="module" src="js/main.js"></script>
+</head>
+<body>
+<!-- Íconos (se reutilizan con <use href="#...">) -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-chevron" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-carpeta" viewBox="0 0 16 16"><path d="M2 4.5A1.5 1.5 0 0 1 3.5 3h3l1.5 1.5h4.5A1.5 1.5 0 0 1 14 6v5.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 11.5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cerrar" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+    <symbol id="i-engrane" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5v2.2M8 12.3v2.2M1.5 8h2.2M12.3 8h2.2M3.4 3.4l1.55 1.55M11.05 11.05l1.55 1.55M3.4 12.6l1.55-1.55M11.05 4.95l1.55-1.55" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 16 16"><path d="M5 3.25v9.5L12.75 8z" fill="currentColor"/></symbol>
+    <symbol id="i-sistema" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-error" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.75 5.75l4.5 4.5M10.25 5.75l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-alerta" viewBox="0 0 16 16"><path d="M8 1.75l6.6 11.75H1.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6.25v3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".95" fill="currentColor"/></symbol>
+</svg>
+
+<a class="saltar" href="#editor">Saltar al editor</a>
+
+<!-- Barra de menú -->
+<header class="barra-menu">
+    <nav aria-label="Menú principal">
+        <ul class="menu">
+            <li class="menu__item">
+                <button class="menu__boton" type="button" aria-expanded="false" aria-controls="panel-lecciones" data-menu>
+                    Lecciones <svg class="icono icono--chico" aria-hidden="true"><use href="#i-chevron"/></svg>
+                </button>
+                <div class="menu__panel" id="panel-lecciones" hidden>
+                    <button class="menu__opcion" type="button" data-accion="abrir-leccion" data-cierra-menu>
+                        <svg class="icono" aria-hidden="true"><use href="#i-carpeta"/></svg> Abrir lección
+                    </button>
+                    <button class="menu__opcion" type="button" data-accion="cerrar-leccion" data-cierra-menu>
+                        <svg class="icono" aria-hidden="true"><use href="#i-cerrar"/></svg> Cerrar lección
+                    </button>
+                </div>
+            </li>
+            <li class="menu__item">
+                <button class="menu__boton" type="button" aria-expanded="false" aria-controls="panel-configuracion" data-menu>
+                    Configuración <svg class="icono icono--chico" aria-hidden="true"><use href="#i-chevron"/></svg>
+                </button>
+                <div class="menu__panel menu__panel--ancho" id="panel-configuracion" hidden>
+                    <div class="ajuste">
+                        <span class="ajuste__nombre" id="lbl-tamano">Tamaño de letra</span>
+                        <div class="ajuste__control" role="group" aria-labelledby="lbl-tamano">
+                            <button class="boton boton--cuadrado" type="button" id="btn-fuente-menos" aria-label="Disminuir tamaño de letra">A−</button>
+                            <output class="ajuste__valor" id="fuente-actual" aria-live="polite">16 px</output>
+                            <button class="boton boton--cuadrado" type="button" id="btn-fuente-mas" aria-label="Aumentar tamaño de letra">A+</button>
+                        </div>
+                    </div>
+                    <fieldset class="ajuste">
+                        <legend class="ajuste__nombre">Tema</legend>
+                        <div class="segmentado">
+                            <label class="segmentado__opcion"><input type="radio" name="tema" value="claro"> Claro</label>
+                            <label class="segmentado__opcion"><input type="radio" name="tema" value="oscuro"> Oscuro</label>
+                        </div>
+                    </fieldset>
+                    <p class="ajuste__nota">Estos ajustes duran mientras tengas la página abierta.</p>
+                    <section class="admin" id="admin" hidden aria-labelledby="admin-titulo">
+                        <h2 class="admin__titulo" id="admin-titulo">Administración (vista previa)</h2>
+                        <p class="ajuste__nota">En la fase 2 estas opciones pedirán usuario y contraseña. Los cambios se pierden al reiniciar el servidor.</p>
+                        <div class="admin__acciones">
+                            <label class="boton boton--archivo">
+                                Importar lecciones (.zip)
+                                <input type="file" id="admin-zip" accept=".zip,application/zip" class="sr-only">
+                            </label>
+                            <a class="boton" id="admin-exportar" href="/api/admin/lecciones/exportar" download>Exportar lecciones</a>
+                            <button class="boton" type="button" id="admin-eliminar" data-cierra-menu>Eliminar una lección…</button>
+                        </div>
+                    </section>
+                </div>
+            </li>
+            <li class="menu__item">
+                <span class="con-tip">
+                    <button class="menu__boton" type="button" id="btn-historial" aria-disabled="true" aria-describedby="tip-historial" data-fase2="El historial">
+                        Historial
+                    </button>
+                    <span class="tip tip--abajo" role="tooltip" id="tip-historial">Disponible en fase 2</span>
+                </span>
+            </li>
+            <li class="menu__item">
+                <button class="menu__boton" type="button" data-accion="ayuda" aria-haspopup="dialog">Ayuda</button>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<!-- Lección activa -->
+<section class="barra-leccion" aria-label="Lección activa">
+    <span class="barra-leccion__etiqueta">Lección activa</span>
+    <p class="barra-leccion__titulo barra-leccion__titulo--vacio" id="titulo-leccion">Ninguna lección abierta</p>
+    <p class="barra-leccion__objetivo" id="objetivo-leccion" hidden></p>
+</section>
+
+<main class="area-trabajo">
+    <!-- Panel de la lección -->
+    <section class="panel-leccion" aria-label="Contenido de la lección">
+        <div class="vacio" id="leccion-vacia">
+            <h1 class="vacio__titulo">Abre una lección para empezar.</h1>
+            <p class="vacio__texto">Aquí verás la explicación y el código que vas a copiar a mano en el editor.</p>
+            <button class="boton boton--primario" type="button" data-accion="abrir-leccion" id="btn-vacio-abrir">
+                <svg class="icono" aria-hidden="true"><use href="#i-carpeta"/></svg> Abrir lección
+            </button>
+        </div>
+        <article class="contenido-leccion" id="contenido-leccion" tabindex="0" hidden></article>
+    </section>
+
+    <!-- Editor, acciones y consola -->
+    <div class="zona-codigo">
+        <section class="editor" aria-label="Editor de código">
+            <div class="editor__cabecera">
+                <span class="editor__archivo">Main.java</span>
+                <span class="editor__posicion" id="editor-posicion" aria-live="off">Línea 1, col 1</span>
+            </div>
+            <div class="editor__hoja">
+                <div class="editor__numeros" id="editor-numeros" aria-hidden="true"><span>1</span></div>
+                <textarea class="editor__texto" id="editor" readonly
+                          aria-label="Editor de código Java (Main.java)" aria-describedby="editor-ayuda"
+                          placeholder="Primero abre una lección."
+                          spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
+                          wrap="off" translate="no" data-gramm="false"></textarea>
+            </div>
+            <p class="editor__ayuda" id="editor-ayuda">Tab inserta 4 espacios. Para salir del editor con el teclado, presiona Esc y luego Tab.</p>
+        </section>
+
+        <div class="acciones">
+            <span class="con-tip">
+                <button class="boton-accion" type="button" id="btn-compilar" aria-disabled="true" aria-describedby="tip-compilar" data-fase2="Compilar">
+                    <svg class="icono" aria-hidden="true"><use href="#i-engrane"/></svg> Compilar
+                </button>
+                <span class="tip" role="tooltip" id="tip-compilar">Disponible en fase 2</span>
+            </span>
+            <span class="con-tip">
+                <button class="boton-accion boton-accion--ejecutar" type="button" id="btn-ejecutar" aria-disabled="true" aria-describedby="tip-ejecutar" data-fase2="Ejecutar">
+                    <svg class="icono" aria-hidden="true"><use href="#i-play"/></svg> Ejecutar
+                </button>
+                <span class="tip" role="tooltip" id="tip-ejecutar">Disponible en fase 2</span>
+            </span>
+        </div>
+
+        <section class="consola" aria-labelledby="consola-titulo">
+            <div class="consola__cabecera">
+                <h2 class="consola__titulo" id="consola-titulo">Consola</h2>
+                <button class="boton boton--texto" type="button" id="btn-limpiar-consola">Limpiar</button>
+            </div>
+            <ol class="consola__salida" id="consola" role="log" aria-live="polite" tabindex="0"></ol>
+        </section>
+    </div>
+</main>
+
+<!-- Abrir lección -->
+<dialog class="dialogo" id="dlg-abrir" aria-labelledby="dlg-abrir-titulo">
+    <div class="dialogo__cabecera">
+        <h2 class="dialogo__titulo" id="dlg-abrir-titulo">Abrir lección</h2>
+        <button class="boton boton--icono" type="button" data-cierra-dialogo aria-label="Cerrar">
+            <svg class="icono" aria-hidden="true"><use href="#i-cerrar"/></svg>
+        </button>
+    </div>
+    <div class="dialogo__cuerpo">
+        <p class="dialogo__estado" id="abrir-estado">Cargando lecciones…</p>
+        <ul class="lista-lecciones" id="lista-lecciones"></ul>
+    </div>
+</dialog>
+
+<!-- Confirmación -->
+<dialog class="dialogo dialogo--chico" id="dlg-confirmar" aria-labelledby="confirmar-titulo" aria-describedby="confirmar-texto">
+    <form method="dialog">
+        <div class="dialogo__cuerpo">
+            <h2 class="dialogo__titulo" id="confirmar-titulo"></h2>
+            <p id="confirmar-texto"></p>
+        </div>
+        <div class="dialogo__pie">
+            <button class="boton" type="submit" value="no" id="confirmar-no" autofocus></button>
+            <button class="boton boton--peligro" type="submit" value="si" id="confirmar-si"></button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Ayuda -->
+<dialog class="dialogo dialogo--ancho" id="dlg-ayuda" aria-labelledby="ayuda-titulo">
+    <div class="dialogo__cabecera">
+        <h2 class="dialogo__titulo" id="ayuda-titulo">Cómo usar la práctica</h2>
+        <button class="boton boton--icono" type="button" data-cierra-dialogo aria-label="Cerrar ayuda">
+            <svg class="icono" aria-hidden="true"><use href="#i-cerrar"/></svg>
+        </button>
+    </div>
+    <div class="dialogo__cuerpo ayuda">
+        <p>Aquí practicas Java escribiendo el código con tus propias manos. No hay autocompletado ni asistentes: así aprendes la sintaxis y a leer los mensajes del compilador.</p>
+
+        <h3>Pasos</h3>
+        <ol class="ayuda__pasos">
+            <li>Abre una lección desde <strong>Lecciones › Abrir lección</strong>.</li>
+            <li>Lee la explicación del panel izquierdo.</li>
+            <li>Copia el código en el editor, letra por letra. No lo pegues.</li>
+            <li>Presiona <strong>Compilar</strong> y lee la consola. Si hay errores, corrígelos y vuelve a compilar.</li>
+            <li>Presiona <strong>Ejecutar</strong> para correr el programa.</li>
+        </ol>
+        <p class="ayuda__nota">Compilar, Ejecutar e Historial estarán disponibles en la fase 2 del proyecto.</p>
+
+        <h3>Objetivos de una lección</h3>
+        <p>Cada lección te pide llegar a un resultado concreto. Lo ves junto al título de la lección activa.</p>
+        <dl class="ayuda__objetivos" id="ayuda-objetivos"></dl>
+
+        <h3>Mensajes de la consola</h3>
+        <p>Cada tipo de mensaje tiene su propio ícono, su nombre y su borde, además del color.</p>
+        <ol class="consola__salida consola__salida--muestra" id="ayuda-consola" aria-label="Ejemplos de mensajes de la consola"></ol>
+
+        <h3>Teclado</h3>
+        <dl class="ayuda__teclas">
+            <dt><kbd>Tab</kbd></dt><dd>Inserta 4 espacios en el editor.</dd>
+            <dt><kbd>Shift</kbd> + <kbd>Tab</kbd></dt><dd>Quita hasta 4 espacios al inicio de la línea.</dd>
+            <dt><kbd>Esc</kbd> y luego <kbd>Tab</kbd></dt><dd>Sale del editor para seguir navegando con el teclado.</dd>
+            <dt><kbd>Esc</kbd></dt><dd>Cierra menús y ventanas como esta.</dd>
+        </dl>
+
+        <h3>Configuración</h3>
+        <p>En <strong>Configuración</strong> cambias el tamaño de letra (de 12 a 24 px) y el tema claro u oscuro. No se guardan: al recargar la página vuelven a los valores iniciales.</p>
+    </div>
+</dialog>
+</body>
 </html>

@@ -1,0 +1,1133 @@
+/*
+ * Interfaz de práctica. Distribución según los mocks del enunciado:
+ * menú arriba, barra de lección activa, lección a la izquierda, editor a la derecha,
+ * botones debajo del editor y consola abajo. Debajo de 900 px todo se apila.
+ */
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: var(--fs);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    background: var(--mesa);
+    color: var(--tinta);
+    font-family: var(--fuente-texto);
+    font-size: var(--t-base);
+    line-height: var(--interlineado);
+}
+
+h1, h2, h3, p, ol, ul, dl, dd, figure, fieldset {
+    margin: 0;
+}
+
+button,
+input,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+:focus-visible {
+    outline: 2px solid var(--acento);
+    outline-offset: 2px;
+}
+
+::selection {
+    background: var(--resaltador);
+    color: var(--tinta);
+}
+
+[hidden] {
+    display: none !important;
+}
+
+.sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.icono {
+    width: 1em;
+    height: 1em;
+    flex: none;
+}
+
+.icono--chico {
+    width: 0.75em;
+    height: 0.75em;
+}
+
+.saltar {
+    position: absolute;
+    left: 0.5rem;
+    top: -10rem;
+    z-index: 50;
+    padding: 0.5rem 0.75rem;
+    background: var(--acento);
+    color: var(--sobre-acento);
+    border-radius: var(--radio-control);
+}
+
+.saltar:focus {
+    top: 0.5rem;
+}
+
+/* ---------- Botones ---------- */
+.boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: var(--toque);
+    padding: 0.375rem 1rem;
+    border: 1px solid var(--borde-control);
+    border-radius: var(--radio-control);
+    background: var(--papel);
+    color: var(--tinta);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.boton:hover {
+    background: var(--mesa);
+}
+
+.boton--primario {
+    border-color: var(--acento);
+    background: var(--acento);
+    color: var(--sobre-acento);
+    font-weight: 600;
+}
+
+.boton--primario:hover {
+    background: var(--acento);
+    box-shadow: inset 0 0 0 2px var(--sobre-acento);
+}
+
+.boton--peligro {
+    border-color: var(--error-comp);
+    background: var(--error-comp);
+    color: var(--papel);
+    font-weight: 600;
+}
+
+.boton--peligro:hover {
+    background: var(--error-comp);
+    box-shadow: inset 0 0 0 2px var(--papel);
+}
+
+.boton--cuadrado {
+    min-width: var(--toque);
+    padding: 0.375rem 0.5rem;
+    font-weight: 700;
+}
+
+.boton--icono {
+    min-width: var(--toque);
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+}
+
+.boton--texto {
+    min-height: 2rem;
+    padding: 0.125rem 0.5rem;
+    border-color: transparent;
+    background: transparent;
+    color: var(--grafito);
+    font-size: var(--t-pequeno);
+}
+
+.boton--texto:hover {
+    color: var(--tinta);
+}
+
+/* ---------- Barra de menú ---------- */
+.barra-menu {
+    padding: 0.25rem 0.5rem;
+    background: var(--mesa);
+    border-bottom: 1px solid var(--renglon);
+}
+
+.menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.125rem;
+    padding: 0;
+    list-style: none;
+}
+
+.menu__boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: var(--toque);
+    padding: 0.375rem 0.75rem;
+    border: 1px solid transparent;
+    border-radius: var(--radio-control);
+    background: transparent;
+    cursor: pointer;
+}
+
+.menu__boton:hover,
+.menu__boton[aria-expanded="true"] {
+    background: var(--papel);
+    border-color: var(--renglon);
+}
+
+.menu__boton[aria-disabled="true"] {
+    color: var(--grafito);
+    cursor: not-allowed;
+}
+
+.menu__boton[aria-disabled="true"]:hover {
+    background: transparent;
+    border-color: transparent;
+}
+
+.menu__panel {
+    position: fixed;
+    top: var(--panel-y, 3.25rem);
+    left: var(--panel-x, 0.5rem);
+    z-index: 30;
+    display: grid;
+    gap: 0.125rem;
+    min-width: 15rem;
+    max-width: calc(100vw - 1rem);
+    max-height: calc(100dvh - var(--panel-y, 3.25rem) - 0.5rem);
+    overflow: auto;
+    padding: 0.375rem;
+    background: var(--papel);
+    border: 1px solid var(--borde-control);
+    border-radius: var(--radio-dialogo);
+    box-shadow: 0 10px 28px var(--sombra);
+}
+
+.menu__panel--ancho {
+    width: 21rem;
+    gap: 0.75rem;
+    padding: 0.875rem;
+}
+
+.menu__opcion {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    width: 100%;
+    min-height: var(--toque);
+    padding: 0.375rem 0.75rem;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.menu__opcion:hover {
+    background: var(--mesa);
+}
+
+/* Ajustes dentro de Configuración */
+.ajuste {
+    display: grid;
+    gap: 0.375rem;
+    padding: 0;
+    border: 0;
+}
+
+.ajuste__nombre {
+    padding: 0;
+    font-weight: 700;
+}
+
+.ajuste__control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ajuste__valor {
+    min-width: 4.5rem;
+    text-align: center;
+    font-family: var(--fuente-codigo);
+}
+
+.ajuste__nota {
+    color: var(--grafito);
+    font-size: var(--t-pequeno);
+}
+
+.segmentado {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--borde-control);
+    border-radius: var(--radio-control);
+    overflow: hidden;
+}
+
+.segmentado__opcion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: var(--toque);
+    cursor: pointer;
+}
+
+.segmentado__opcion + .segmentado__opcion {
+    border-left: 1px solid var(--borde-control);
+}
+
+.segmentado__opcion:has(input:checked) {
+    background: var(--acento);
+    color: var(--sobre-acento);
+    font-weight: 700;
+}
+
+.segmentado__opcion:has(input:focus-visible) {
+    outline: 2px solid var(--acento);
+    outline-offset: -4px;
+    box-shadow: inset 0 0 0 4px var(--papel);
+}
+
+.segmentado input {
+    accent-color: var(--sobre-acento);
+    margin: 0;
+}
+
+.admin {
+    display: grid;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--renglon);
+}
+
+.admin__titulo {
+    font-size: var(--t-base);
+}
+
+.admin__acciones {
+    display: grid;
+    gap: 0.375rem;
+}
+
+.boton--archivo:has(input:focus-visible) {
+    outline: 2px solid var(--acento);
+    outline-offset: 2px;
+}
+
+/* ---------- Barra de lección activa ---------- */
+.barra-leccion {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--papel);
+    border-bottom: 1px solid var(--renglon);
+}
+
+.barra-leccion__etiqueta {
+    padding-right: 1rem;
+    border-right: 2px solid var(--margen);
+    color: var(--grafito);
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+}
+
+.barra-leccion__titulo {
+    font-family: var(--fuente-codigo);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.barra-leccion__titulo--vacio {
+    font-family: var(--fuente-texto);
+    font-weight: 400;
+    color: var(--grafito);
+}
+
+.barra-leccion__objetivo {
+    margin-left: auto;
+    color: var(--grafito);
+    font-size: var(--t-pequeno);
+}
+
+.barra-leccion__objetivo strong {
+    color: var(--tinta);
+}
+
+/* ---------- Área de trabajo ---------- */
+.area-trabajo {
+    display: grid;
+    gap: 0.5rem;
+    min-height: 0;
+    padding: 0.5rem;
+}
+
+.panel-leccion {
+    min-height: 0;
+    max-height: 55svh;
+    overflow: auto;
+    background: var(--papel);
+}
+
+.zona-codigo {
+    display: grid;
+    gap: 0.5rem;
+    min-height: 0;
+}
+
+/* Estado vacío */
+.vacio {
+    display: grid;
+    justify-items: start;
+    gap: 0.75rem;
+    max-width: 34rem;
+    padding: 2rem 1.5rem;
+}
+
+.vacio__titulo {
+    font-size: var(--t-h1);
+    line-height: 1.25;
+}
+
+.vacio__texto {
+    color: var(--grafito);
+}
+
+/* ---------- Contenido de la lección (markdown renderizado) ---------- */
+.contenido-leccion {
+    padding: 1.25rem 1.25rem 2.5rem;
+}
+
+.contenido-leccion:focus-visible {
+    outline-offset: -2px;
+}
+
+.contenido-leccion > * + * {
+    margin-top: 0.875rem;
+}
+
+.contenido-leccion > :is(p, ul, ol, h1, h2, h3) {
+    max-width: 68ch;
+}
+
+.contenido-leccion h1 {
+    font-size: var(--t-h1);
+    line-height: 1.25;
+}
+
+.contenido-leccion h2 {
+    margin-top: 1.75rem;
+    font-size: var(--t-h2);
+    line-height: 1.3;
+}
+
+.contenido-leccion h3 {
+    margin-top: 1.5rem;
+    font-size: var(--t-h3);
+}
+
+.contenido-leccion ul,
+.contenido-leccion ol {
+    padding-left: 1.375rem;
+}
+
+.contenido-leccion li + li {
+    margin-top: 0.25rem;
+}
+
+.contenido-leccion a {
+    color: var(--acento);
+    text-underline-offset: 0.15em;
+}
+
+.contenido-leccion img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--renglon);
+}
+
+.contenido-leccion code {
+    padding: 0.05em 0.3em;
+    border-radius: 3px;
+    background: var(--mesa);
+    font-family: var(--fuente-codigo);
+    font-size: 0.9375em;
+}
+
+.tabla-scroll {
+    overflow-x: auto;
+}
+
+.contenido-leccion table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.contenido-leccion th,
+.contenido-leccion td {
+    padding: 0.375rem 0.625rem;
+    border-bottom: 1px solid var(--renglon);
+    text-align: left;
+    vertical-align: top;
+}
+
+.contenido-leccion th {
+    border-bottom: 2px solid var(--borde-control);
+}
+
+/* El código modelo se ve igual que el editor: mismos renglones, margen y numeración. */
+.codigo-modelo {
+    padding: var(--relleno-hoja) 0;
+    border: 1px solid var(--renglon);
+    overflow-x: auto;
+    background-color: var(--papel);
+    background-image: linear-gradient(to bottom, transparent calc(var(--alto-linea) - 1px), var(--renglon) calc(var(--alto-linea) - 1px));
+    background-size: 100% var(--alto-linea);
+    background-position: 0 var(--relleno-hoja);
+    background-attachment: local;
+    font-family: var(--fuente-codigo);
+    line-height: var(--alto-linea);
+}
+
+.contenido-leccion .codigo-modelo code {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    padding: 0;
+    background: none;
+    font-size: 1rem;
+    counter-reset: linea;
+}
+
+.codigo-modelo .linea {
+    display: block;
+    padding-right: 1rem;
+    white-space: pre;
+}
+
+.codigo-modelo .linea::before {
+    counter-increment: linea;
+    content: counter(linea);
+    position: sticky;
+    left: 0;
+    display: inline-block;
+    width: 2.25rem;
+    margin-right: 0.625rem;
+    padding-right: 0.5rem;
+    border-right: 2px solid var(--margen);
+    background: var(--papel);
+    color: var(--grafito);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+}
+
+/* Bloques sin lenguaje: muestran salida de consola, así que se ven como la consola. */
+.salida-modelo {
+    padding: 0.625rem 1rem;
+    border-left: 4px solid var(--borde-control);
+    overflow-x: auto;
+    background: var(--mesa);
+    font-family: var(--fuente-codigo);
+    line-height: 1.5;
+}
+
+.contenido-leccion .salida-modelo code {
+    padding: 0;
+    background: none;
+    font-size: 1rem;
+    white-space: pre;
+}
+
+/* ---------- Editor: la plana ---------- */
+.editor {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--papel);
+}
+
+.editor__cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.375rem 0.75rem;
+    border-bottom: 1px solid var(--renglon);
+    color: var(--grafito);
+    font-size: var(--t-pequeno);
+}
+
+.editor__archivo {
+    color: var(--tinta);
+    font-family: var(--fuente-codigo);
+    font-weight: 700;
+}
+
+.editor__posicion {
+    font-family: var(--fuente-codigo);
+    font-variant-numeric: tabular-nums;
+}
+
+.editor__hoja {
+    display: flex;
+    flex: 1;
+    min-height: calc(var(--alto-linea) * 14 + 2 * var(--relleno-hoja));
+}
+
+.editor__numeros {
+    flex: none;
+    min-width: 3.25rem;
+    padding: var(--relleno-hoja) 0.625rem 0 0.5rem;
+    overflow: hidden;
+    border-right: 2px solid var(--margen);
+    color: var(--grafito);
+    font-family: var(--fuente-codigo);
+    line-height: var(--alto-linea);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+}
+
+.editor__numeros span {
+    display: block;
+}
+
+/* Espacio extra para que los números puedan desplazarse tanto como el texto (barra horizontal incluida). */
+.editor__numeros::after {
+    content: "";
+    display: block;
+    height: 50vh;
+}
+
+.editor__texto {
+    --linea-actual: 0;
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: var(--relleno-hoja) 0.75rem;
+    border: 0;
+    border-radius: 0;
+    resize: none;
+    overflow: auto;
+    white-space: pre;
+    tab-size: 4;
+    background-color: var(--papel);
+    /* Capa 1: renglón actual (resaltador). Capa 2: renglones del cuaderno. */
+    background-image:
+        linear-gradient(var(--resaltador), var(--resaltador)),
+        linear-gradient(to bottom, transparent calc(var(--alto-linea) - 1px), var(--renglon) calc(var(--alto-linea) - 1px));
+    background-size: 100% var(--alto-linea), 100% var(--alto-linea);
+    background-repeat: no-repeat, repeat;
+    background-position:
+        0 calc(var(--relleno-hoja) + var(--linea-actual) * var(--alto-linea)),
+        0 var(--relleno-hoja);
+    background-attachment: local, local;
+    color: var(--tinta);
+    caret-color: var(--acento);
+    font-family: var(--fuente-codigo);
+    font-size: 1rem;
+    font-variant-ligatures: none;
+    line-height: var(--alto-linea);
+}
+
+.editor__texto:focus-visible {
+    outline-offset: -2px;
+}
+
+.editor__texto[readonly] {
+    background-image:
+        linear-gradient(transparent, transparent),
+        linear-gradient(to bottom, transparent calc(var(--alto-linea) - 1px), var(--renglon) calc(var(--alto-linea) - 1px));
+    cursor: default;
+}
+
+.editor__texto::placeholder {
+    color: var(--grafito);
+    opacity: 1;
+    font-family: var(--fuente-texto);
+}
+
+.editor__ayuda {
+    padding: 0.25rem 0.75rem 0.375rem;
+    border-top: 1px solid var(--renglon);
+    color: var(--grafito);
+    font-size: var(--t-pequeno);
+}
+
+/* ---------- Botones de acción (Compilar / Ejecutar) ---------- */
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.boton-accion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: var(--toque);
+    padding: 0.375rem 1.375rem;
+    border: 2px solid var(--tinta);
+    border-radius: var(--radio-control);
+    background: var(--papel);
+    color: var(--tinta);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.boton-accion--ejecutar {
+    border-color: var(--ok);
+    background: var(--ok);
+    color: var(--sobre-ok);
+}
+
+/* Fase 1: visibles pero sin acción. Siguen siendo enfocables para mostrar el aviso. */
+.boton-accion[aria-disabled="true"] {
+    border-style: dashed;
+    border-color: var(--borde-control);
+    background: transparent;
+    color: var(--grafito);
+    cursor: not-allowed;
+}
+
+/* Aviso "Disponible en fase 2" */
+.con-tip {
+    position: relative;
+    display: inline-flex;
+}
+
+.tip {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    left: 50%;
+    z-index: 25;
+    padding: 0.25rem 0.625rem;
+    border-radius: 3px;
+    background: var(--tinta);
+    color: var(--papel);
+    font-size: var(--t-pequeno);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    translate: -50% 0;
+    transition: opacity var(--transicion), visibility var(--transicion);
+}
+
+.tip--abajo {
+    top: calc(100% + 0.375rem);
+    bottom: auto;
+}
+
+.con-tip:hover .tip,
+.con-tip:focus-within .tip,
+.tip.tip--visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tip.tip--oculto {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* ---------- Consola ---------- */
+.consola {
+    display: flex;
+    flex-direction: column;
+    min-height: 9rem;
+    background: var(--papel);
+}
+
+.consola__cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.125rem 0.5rem 0.125rem 0.75rem;
+    border-bottom: 1px solid var(--renglon);
+}
+
+.consola__titulo {
+    color: var(--grafito);
+    font-size: var(--t-pequeno);
+    font-weight: 700;
+}
+
+.consola__salida {
+    position: relative;
+    flex: 1;
+    display: grid;
+    align-content: start;
+    gap: 0.25rem;
+    min-height: 0;
+    padding: 0.5rem;
+    overflow: auto;
+    list-style: none;
+    font-family: var(--fuente-codigo);
+    line-height: 1.5;
+}
+
+@media (max-width: 899px) {
+    .consola__salida {
+        max-height: 18rem;
+    }
+}
+
+.consola__salida:focus-visible {
+    outline-offset: -2px;
+}
+
+.msj {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    column-gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-left: 4px solid transparent;
+}
+
+.msj__icono {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.25em;
+}
+
+.msj__tipo {
+    display: block;
+    font-family: var(--fuente-texto);
+    font-weight: 700;
+}
+
+.msj__texto {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.msj--sistema {
+    color: var(--grafito);
+}
+
+.msj--exito {
+    border-left: 2px solid var(--ok);
+    background: var(--ok-fondo);
+}
+
+.msj--exito .msj__icono,
+.msj--exito .msj__tipo {
+    color: var(--ok);
+}
+
+.msj--error-compilacion {
+    border-left: 6px solid var(--error-comp);
+    background: var(--error-comp-fondo);
+}
+
+.msj--error-compilacion .msj__icono,
+.msj--error-compilacion .msj__tipo {
+    color: var(--error-comp);
+}
+
+.msj--error-ejecucion {
+    border-left: 6px dashed var(--error-ejec);
+    background: var(--error-ejec-fondo);
+}
+
+.msj--error-ejecucion .msj__icono,
+.msj--error-ejecucion .msj__tipo {
+    color: var(--error-ejec);
+}
+
+/* ---------- Diálogos ---------- */
+.dialogo {
+    width: min(34rem, calc(100vw - 1.5rem));
+    max-height: calc(100dvh - 1.5rem);
+    padding: 0;
+    overflow: hidden; /* solo el cuerpo hace scroll; la cabecera con "Cerrar" queda fija */
+    border: 1px solid var(--borde-control);
+    border-radius: var(--radio-dialogo);
+    background: var(--papel);
+    color: var(--tinta);
+    box-shadow: 0 18px 48px var(--sombra);
+}
+
+.dialogo[open] {
+    display: flex;
+    flex-direction: column;
+    animation: aparecer var(--transicion) ease-out;
+}
+
+.dialogo > form {
+    display: contents;
+}
+
+.dialogo::backdrop {
+    background: var(--velo);
+}
+
+.dialogo--chico {
+    width: min(26rem, calc(100vw - 1.5rem));
+}
+
+.dialogo--ancho {
+    width: min(44rem, calc(100vw - 1.5rem));
+}
+
+.dialogo__cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.375rem 0.375rem 0.375rem 1.25rem;
+    border-bottom: 1px solid var(--renglon);
+}
+
+.dialogo__titulo {
+    font-size: var(--t-h2);
+    line-height: 1.3;
+}
+
+.dialogo__cuerpo {
+    position: relative; /* contiene a los .sr-only para que no agranden el scroll del diálogo */
+    display: grid;
+    align-content: start;
+    gap: 0.75rem;
+    min-height: 0;
+    padding: 1.25rem;
+    overflow: auto;
+}
+
+.dialogo__pie {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--renglon);
+}
+
+.dialogo__estado {
+    color: var(--grafito);
+}
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        translate: 0 0.25rem;
+    }
+}
+
+/* Lista de lecciones */
+.lista-lecciones {
+    display: grid;
+    gap: 0.375rem;
+    padding: 0;
+    list-style: none;
+}
+
+.lista-lecciones__item {
+    display: grid;
+    gap: 0.125rem;
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--renglon);
+    border-left: 4px solid var(--margen);
+    border-radius: 3px;
+    background: var(--papel);
+    text-align: left;
+    cursor: pointer;
+}
+
+.lista-lecciones__item:hover {
+    border-color: var(--borde-control);
+    border-left-color: var(--margen);
+    background: var(--mesa);
+}
+
+.lista-lecciones__item[aria-current="true"] {
+    border-left-color: var(--acento);
+}
+
+.lista-lecciones__nombre {
+    font-family: var(--fuente-codigo);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.lista-lecciones__objetivo {
+    color: var(--grafito);
+    font-size: var(--t-pequeno);
+}
+
+/* Ayuda */
+.ayuda h3 {
+    margin-top: 0.75rem;
+    font-size: var(--t-h3);
+}
+
+.ayuda__pasos {
+    display: grid;
+    gap: 0.25rem;
+    padding-left: 1.5rem;
+}
+
+.ayuda__nota {
+    color: var(--grafito);
+    font-size: var(--t-pequeno);
+}
+
+.ayuda__objetivos {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.ayuda__objetivos dt {
+    font-weight: 700;
+}
+
+.ayuda__objetivos dd {
+    color: var(--grafito);
+}
+
+.ayuda__objetivos code {
+    font-family: var(--fuente-codigo);
+    font-size: var(--t-pequeno);
+}
+
+/* Ejemplos en la Ayuda: ocupan su alto natural (la consola real usa min-height: 0 para su scroll). */
+.consola__salida--muestra {
+    flex: none;
+    min-height: auto;
+    max-height: none;
+    padding: 0.5rem;
+    border: 1px solid var(--renglon);
+    overflow: visible;
+}
+
+.ayuda__teclas {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.375rem 1rem;
+}
+
+kbd {
+    display: inline-block;
+    padding: 0 0.375rem;
+    border: 1px solid var(--borde-control);
+    border-bottom-width: 2px;
+    border-radius: 3px;
+    font-family: var(--fuente-codigo);
+    font-size: var(--t-pequeno);
+}
+
+/* ---------- Escritorio: dos columnas, cada panel con su propio scroll ---------- */
+@media (min-width: 900px) {
+    body {
+        height: 100dvh;
+        overflow: hidden;
+    }
+
+    .area-trabajo {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    }
+
+    .panel-leccion {
+        max-height: none;
+    }
+
+    .zona-codigo {
+        grid-template-rows: minmax(0, 1fr) auto clamp(8rem, 28vh, 16rem);
+    }
+
+    .editor__hoja {
+        min-height: 0;
+    }
+
+    .consola {
+        min-height: 0;
+    }
+}
+
+/* ---------- Móvil ---------- */
+@media (max-width: 599px) {
+    .barra-menu {
+        padding: 0.125rem 0.25rem;
+    }
+
+    .menu {
+        gap: 0;
+    }
+
+    .menu__boton {
+        gap: 0.25rem;
+        padding: 0.375rem 0.5rem;
+    }
+
+    .barra-leccion__objetivo {
+        flex-basis: 100%;
+        margin-left: 0;
+    }
+
+    .barra-leccion__etiqueta {
+        flex-basis: 100%;
+        padding-right: 0;
+        border-right: 0;
+    }
+
+    .acciones .con-tip,
+    .boton-accion {
+        flex: 1;
+    }
+
+    .contenido-leccion {
+        padding: 1rem 1rem 2rem;
+    }
+
+    .menu__panel {
+        left: 0.5rem;
+        right: 0.5rem;
+        width: auto;
+        min-width: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}

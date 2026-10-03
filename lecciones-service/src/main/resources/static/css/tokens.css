@@ -1,0 +1,157 @@
+/*
+ * Tokens de diseño: "cuaderno" (tema claro) y "pizarra" (tema oscuro).
+ * Todo el texto se mide en rem y la raíz toma su tamaño de --fs, que cambian los botones A− / A+.
+ */
+
+/* ---------- Fuentes empaquetadas (SIL Open Font License 1.1, ver fonts/OFL-*.txt) ---------- */
+@font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-style: normal;
+    font-display: swap;
+    font-weight: 200 800;
+    src: url("../fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-style: normal;
+    font-display: swap;
+    font-weight: 200 800;
+    src: url("../fonts/atkinson-hyperlegible-next-latin-ext-wght-normal.woff2") format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-style: italic;
+    font-display: swap;
+    font-weight: 200 800;
+    src: url("../fonts/atkinson-hyperlegible-next-latin-wght-italic.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    font-style: italic;
+    font-display: swap;
+    font-weight: 200 800;
+    src: url("../fonts/atkinson-hyperlegible-next-latin-ext-wght-italic.woff2") format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-style: normal;
+    font-display: swap;
+    font-weight: 200 800;
+    src: url("../fonts/atkinson-hyperlegible-mono-latin-wght-normal.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: "Atkinson Hyperlegible Mono";
+    font-style: normal;
+    font-display: swap;
+    font-weight: 200 800;
+    src: url("../fonts/atkinson-hyperlegible-mono-latin-ext-wght-normal.woff2") format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---------- Escala y medidas (independientes del tema) ---------- */
+:root {
+    --fs: 16px;
+
+    --fuente-texto: "Atkinson Hyperlegible Next", "Segoe UI", system-ui, sans-serif;
+    --fuente-codigo: "Atkinson Hyperlegible Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+    /* Escala clásica de The Elements of Typographic Style: 14 / 16 / 18 / 21 / 24 sobre 16 */
+    --t-pequeno: 0.875rem;
+    --t-base: 1rem;
+    --t-h3: 1.125rem;
+    --t-h2: 1.3125rem;
+    --t-h1: 1.5rem;
+
+    --interlineado: 1.55;
+    /* Alto de renglón del código: los renglones del editor y de los bloques de la lección lo usan. */
+    --alto-linea: 1.625rem;
+    --relleno-hoja: 0.5rem;
+
+    --radio-control: 4px;
+    --radio-dialogo: 6px;
+    --toque: 2.75rem; /* 44 px a tamaño base: área mínima táctil */
+    --transicion: 120ms;
+}
+
+/* ---------- Cuaderno (claro): hoja con renglones, margen rosado y tinta azul ---------- */
+:root,
+:root[data-theme="claro"] {
+    color-scheme: light;
+    --mesa: #E6EAF0;
+    --papel: #FCFDFE;
+    --tinta: #1A2238;
+    --grafito: #4B5567;
+    --acento: #3341B5;
+    --sobre-acento: #FFFFFF;
+    --margen: #E58A97;
+    --renglon: #D5E0EF;
+    --resaltador: #FFF2A6;
+    --borde-control: #6B778A;
+    --sombra: rgb(26 34 56 / 0.16);
+    --velo: rgb(26 34 56 / 0.45);
+
+    --ok: #17663F;
+    --ok-fondo: #E5F3EA;
+    --sobre-ok: #FFFFFF;
+    --error-comp: #B3261E;
+    --error-comp-fondo: #FBEAE8;
+    --error-ejec: #8F4700;
+    --error-ejec-fondo: #FCEFDD;
+}
+
+/* ---------- Pizarra (oscuro): verde gris, letra de tiza y tiza amarilla ---------- */
+:root[data-theme="oscuro"] {
+    color-scheme: dark;
+    --mesa: #16201C;
+    --papel: #1D2924;
+    --tinta: #E8EDE5;
+    --grafito: #A6B4AB;
+    --acento: #F2D16B;
+    --sobre-acento: #16201C;
+    --margen: #B0707C;
+    --renglon: #2A3933;
+    --resaltador: #2F3A2A;
+    --borde-control: #7F9188;
+    --sombra: rgb(0 0 0 / 0.4);
+    --velo: rgb(8 12 10 / 0.6);
+
+    --ok: #8FDCAE;
+    --ok-fondo: #20382C;
+    --sobre-ok: #16201C;
+    --error-comp: #FF9C94;
+    --error-comp-fondo: #3A2826;
+    --error-ejec: #F4BA6E;
+    --error-ejec-fondo: #382F22;
+}
+
+/* Antes de que el JS elija el tema, se respeta la preferencia del sistema (sin parpadeo). */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        color-scheme: dark;
+        --mesa: #16201C;
+        --papel: #1D2924;
+        --tinta: #E8EDE5;
+        --grafito: #A6B4AB;
+        --acento: #F2D16B;
+        --sobre-acento: #16201C;
+        --margen: #B0707C;
+        --renglon: #2A3933;
+        --resaltador: #2F3A2A;
+        --borde-control: #7F9188;
+        --sombra: rgb(0 0 0 / 0.4);
+        --velo: rgb(8 12 10 / 0.6);
+
+        --ok: #8FDCAE;
+        --ok-fondo: #20382C;
+        --sobre-ok: #16201C;
+        --error-comp: #FF9C94;
+        --error-comp-fondo: #3A2826;
+        --error-ejec: #F4BA6E;
+        --error-ejec-fondo: #382F22;
+    }
+}
