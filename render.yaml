@@ -1,0 +1,21 @@
+# Blueprint de Render: https://render.com/docs/blueprint-spec
+# Las rutas son relativas a la raíz del repositorio.
+services:
+  - type: web
+    name: lecciones-service
+    runtime: docker
+    plan: free
+    region: ohio
+    dockerfilePath: ./lecciones-service/Dockerfile
+    dockerContext: ./lecciones-service
+    healthCheckPath: /actuator/health
+    # Despliega solo cuando el workflow de GitHub Actions (compilación + pruebas) pasa.
+    autoDeployTrigger: checksPass
+    # Cambios solo en docs/ o scripts/ no disparan un nuevo despliegue.
+    buildFilter:
+      paths:
+        - lecciones-service/**
+    envVars:
+      # Opciones administrativas sin autenticación (prioridad 2): apagadas en la URL pública.
+      - key: APP_ADMIN_PREVIEW_ENABLED
+        value: "false"
