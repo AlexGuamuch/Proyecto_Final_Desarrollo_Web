@@ -10,7 +10,7 @@
 <table class="caratula__campos">
 <tr><td>Nombre:</td><td class="linea">&nbsp;</td></tr>
 <tr><td>Carné:</td><td class="linea">&nbsp;</td></tr>
-<tr><td>URL del proyecto desplegado:</td><td class="linea">&nbsp;</td></tr>
+<tr><td>URL del proyecto desplegado:</td><td class="linea">https://lecciones-service.onrender.com</td></tr>
 </table>
 
 <p class="caratula__fecha">Guatemala, 3 de octubre de 2026</p>

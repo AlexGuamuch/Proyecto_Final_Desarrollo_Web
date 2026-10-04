@@ -4,7 +4,7 @@ Aplicación web para que estudiantes de los primeros cursos de Ingeniería en Si
 
 Proyecto del curso Desarrollo Web, Universidad Mariano Gálvez de Guatemala. El enunciado está en [`docs/enunciado.pdf`](docs/enunciado.pdf).
 
-**URL pública:** _(completar después del despliegue, ver [DEPLOY.md](DEPLOY.md))_
+**URL pública:** <https://lecciones-service.onrender.com> (plan gratuito de Render: si estuvo inactiva, la primera visita tarda alrededor de un minuto).
 
 ## Alcance de la fase 1
 

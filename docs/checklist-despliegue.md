@@ -17,16 +17,16 @@ No hay base de datos, migraciones ni usuarios existentes: el riesgo principal es
 - [x] Importar, exportar y eliminar activos (`APP_ADMIN_PREVIEW_ENABLED=true`), con límites de tamaño y de memoria porque no tienen autenticación hasta la fase 2.
 - [x] Plan de rollback documentado en [DEPLOY.md](../DEPLOY.md#volver-a-una-versión-anterior).
 - [ ] `docker build` y `docker run` locales: **pendiente de instalar Docker Desktop**. Mientras tanto lo cubre el job `imagen` del CI.
-- [ ] CI en verde en GitHub (compilar y probar + imagen Docker).
+- [x] CI en verde en GitHub (compilar y probar + imagen Docker).
 - [x] Revisión de código final (`engineering:code-review`): 2 ajustes menores del frontend corregidos.
 
 ## Despliegue
 
-- [ ] Push de `main` al repositorio de GitHub.
-- [ ] Render → New → Blueprint → elegir el repositorio → Apply.
+- [x] Push de `main` al repositorio de GitHub.
+- [x] Render → New → Blueprint → elegir el repositorio → Apply.
 - [ ] En los logs de Render: `Lecciones cargadas: 4 de 4` y `Tomcat started on port`.
-- [ ] Render marca el servicio como **Live** (health check aprobado).
-- [ ] `./scripts/verificar-despliegue.sh <URL>` sin fallos.
+- [x] Render marca el servicio como **Live** (health check aprobado): `/actuator/health` responde `UP` en la URL pública.
+- [x] `./scripts/verificar-despliegue.sh https://lecciones-service.onrender.com`: 18 de 18 comprobaciones en verde.
 - [ ] Flujos clave en el navegador con la URL pública, desde computadora y desde un teléfono:
   - Abrir lección: lista las 4, carga contenido, imagen y título.
   - Cerrar lección: limpia panel, editor y título.
@@ -37,7 +37,7 @@ No hay base de datos, migraciones ni usuarios existentes: el riesgo principal es
 
 ## Después de desplegar
 
-- [ ] Anotar la URL en `README.md` y en la carátula de `docs/documentacion-fase1.md`.
+- [x] Anotar la URL en `README.md` y en la carátula de `docs/documentacion-fase1.md`: https://lecciones-service.onrender.com
 - [ ] Esperar 20 minutos sin tráfico y abrir la URL: confirmar que el servicio despierta (≈1 minuto) y funciona.
 - [ ] Revisar los logs de Render: sin `ERROR` ni reinicios por memoria.
 
