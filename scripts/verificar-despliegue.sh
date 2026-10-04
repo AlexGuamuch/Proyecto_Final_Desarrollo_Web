@@ -56,7 +56,8 @@ revisar "JavaScript" "200" "$(codigo "$base/js/main.js")"
 revisar "fuente del editor" "200" "$(codigo "$base/fonts/atkinson-hyperlegible-mono-latin-wght-normal.woff2")"
 revisar "CSP presente" "default-src 'self'" "$(curl -sI "$base/" | tr -d '\r')"
 revisar "actuator solo expone health" "404" "$(codigo "$base/actuator/env")"
-revisar "admin apagado" "404" "$(codigo "$base/api/admin/estado")"
+revisar "opciones de Configuración activas" '"habilitado":true' "$(curl -s "$base/api/admin/estado")"
+revisar "exportar lecciones descarga un zip" "200 application/zip" "$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "$base/api/admin/lecciones/exportar")"
 
 if [[ $fallos -eq 0 ]]; then
     echo "Todo bien."

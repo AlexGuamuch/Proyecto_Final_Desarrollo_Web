@@ -73,8 +73,9 @@
                         <div class="admin__acciones">
                             <label class="boton boton--archivo">
                                 Importar lecciones (.zip)
-                                <input type="file" id="admin-zip" accept=".zip,application/zip" class="sr-only">
+                                <input type="file" id="admin-zip" accept=".zip,application/zip" class="sr-only" aria-describedby="admin-zip-ayuda">
                             </label>
+                            <p class="ajuste__nota" id="admin-zip-ayuda">Hasta 10 MB. Una carpeta por lección, con leccion.md y config.txt.</p>
                             <a class="boton" id="admin-exportar" href="/api/admin/lecciones/exportar" download>Exportar lecciones</a>
                             <button class="boton" type="button" id="admin-eliminar" data-cierra-menu>Eliminar una lección…</button>
                         </div>
@@ -173,6 +174,20 @@
     </div>
 </dialog>
 
+<!-- Eliminar lección (Configuración › Administración) -->
+<dialog class="dialogo" id="dlg-eliminar" aria-labelledby="dlg-eliminar-titulo">
+    <div class="dialogo__cabecera">
+        <h2 class="dialogo__titulo" id="dlg-eliminar-titulo">Eliminar una lección</h2>
+        <button class="boton boton--icono" type="button" data-cierra-dialogo aria-label="Cerrar">
+            <svg class="icono" aria-hidden="true"><use href="#i-cerrar"/></svg>
+        </button>
+    </div>
+    <div class="dialogo__cuerpo">
+        <p class="dialogo__estado" id="eliminar-estado">Cargando lecciones…</p>
+        <ul class="lista-lecciones" id="lista-eliminar"></ul>
+    </div>
+</dialog>
+
 <!-- Confirmación -->
 <dialog class="dialogo dialogo--chico" id="dlg-confirmar" aria-labelledby="confirmar-titulo" aria-describedby="confirmar-texto">
     <form method="dialog">
@@ -226,6 +241,7 @@
 
         <h3>Configuración</h3>
         <p>En <strong>Configuración</strong> cambias el tamaño de letra (de 12 a 24 px) y el tema claro u oscuro. No se guardan: al recargar la página vuelven a los valores iniciales.</p>
+        <p>En la misma sección, <strong>Administración</strong> permite importar lecciones desde un zip (una carpeta por lección, con <code>leccion.md</code> y <code>config.txt</code>), exportar todas las lecciones en un zip y eliminar una lección. Los cambios duran hasta que se reinicia el servidor; en la fase 2 estas opciones pedirán usuario y contraseña.</p>
     </div>
 </dialog>
 </body>

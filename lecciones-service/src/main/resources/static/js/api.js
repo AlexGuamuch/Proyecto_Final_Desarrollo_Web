@@ -35,7 +35,7 @@ export function obtenerLeccion(id) {
     return pedir(`/api/lecciones/${encodeURIComponent(id)}`);
 }
 
-// ---- Administración en vista previa (prioridad 2) ----
+// ---- Configuración › Administración: importar, eliminar y exportar lecciones ----
 
 /** Devuelve true si el servidor tiene activas las opciones administrativas. */
 export async function adminDisponible() {

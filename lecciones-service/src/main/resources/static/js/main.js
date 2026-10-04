@@ -178,6 +178,6 @@ prepararConfiguracion({
 });
 prepararControlesFase2(consola);
 prepararAyuda();
-prepararAdmin({ consola, menus, alCambiarLecciones: () => {} });
+prepararAdmin({ consola, leccionActiva });
 editor.habilitar(false);
 consola.escribir('sistema', 'Abre una lección desde el menú Lecciones para empezar.');

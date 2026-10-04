@@ -16,6 +16,7 @@ services:
       paths:
         - lecciones-service/**
     envVars:
-      # Opciones administrativas sin autenticación (prioridad 2): apagadas en la URL pública.
+      # Importar, exportar y eliminar lecciones (opciones de Configuración que la fase 1 pide
+      # funcionando en memoria). Sin autenticación hasta la fase 2; "false" las oculta.
       - key: APP_ADMIN_PREVIEW_ENABLED
-        value: "false"
+        value: "true"

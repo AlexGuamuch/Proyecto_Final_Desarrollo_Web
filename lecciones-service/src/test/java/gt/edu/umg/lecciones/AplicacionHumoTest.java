@@ -81,7 +81,11 @@ class AplicacionHumoTest {
     }
 
     @Test
-    void lasAdministrativasEstanApagadasPorDefecto() throws Exception {
-        assertThat(get("/api/admin/estado").statusCode()).isEqualTo(404);
+    void lasOpcionesDeConfiguracionSobreLeccionesEstanActivasPorDefecto() throws Exception {
+        HttpResponse<String> estado = get("/api/admin/estado");
+
+        assertThat(estado.statusCode()).isEqualTo(200);
+        assertThat(estado.body()).contains("\"habilitado\":true");
+        assertThat(get("/api/admin/lecciones/exportar").headers().firstValue("Content-Type")).hasValue("application/zip");
     }
 }
