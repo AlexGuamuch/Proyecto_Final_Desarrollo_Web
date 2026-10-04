@@ -22,6 +22,7 @@ Este documento justifica las decisiones funcionales y no funcionales de la fase 
 | [006](#adr-006-configuración-del-estudiante-solo-en-memoria) | Tamaño de letra y tema solo en variables JavaScript | Aceptada (fase 1) |
 | [007](#adr-007-editor-de-código-sin-ayudas) | Editor `<textarea>` sin autocompletado ni ayudas inteligentes | Aceptada |
 | [008](#adr-008-render-como-plataforma-de-nube-con-docker) | Render (plan gratuito) con imagen Docker | Aceptada (fase 1) |
+| [009](#adr-009-importar-exportar-y-eliminar-lecciones-activos-en-la-fase-1-sin-autenticación) | Importar, exportar y eliminar lecciones activos en memoria, con límites, sin autenticación hasta la fase 2 | Aceptada (fase 1) |
 
 ---
 
@@ -114,7 +115,7 @@ La fase 1 no lleva base de datos. Las lecciones vienen dentro del proyecto (carp
 
 ### Consecuencias
 
-- Las lecciones importadas en la vista previa de administración (prioridad 2) se pierden al reiniciar y no se comparten entre instancias. Está documentado y lo resuelve la base de datos de la fase 2.
+- Las lecciones importadas desde Configuración se pierden al reiniciar y no se comparten entre instancias. Es lo que pide la fase 1 ("solo se almacena en memoria") y lo resuelve la base de datos de la fase 2.
 - La carga valida cada lección (`ValidadorLeccion`). Una lección inválida se registra como advertencia y se omite, sin detener el servicio.
 
 ### Pendientes para la fase 2
@@ -307,6 +308,45 @@ Se necesita una URL pública estable, con presupuesto cero, desplegada desde Git
 
 ---
 
+## ADR-009: Importar, exportar y eliminar lecciones activos en la fase 1, sin autenticación
+
+**Estado:** Aceptada para la fase 1 · **Fecha:** 2026-10-03
+
+### Contexto
+
+El enunciado ubica en el menú Configuración las opciones "importar un compendio (bundle)", "eliminar una lección" y "exportar lecciones", y para la fase 1 pide que "las opciones de Configuración funcionan pero la información solo se almacena en memoria". A la vez, la fase 1 excluye los requisitos de seguridad y administración (inicio de sesión y CRUD de administradores). Las opciones tienen que funcionar en una URL pública sin que nadie inicie sesión.
+
+### Decisión
+
+- Las tres opciones funcionan sobre el repositorio en memoria, bajo `/api/admin/**`, y se muestran en Configuración como "Administración (vista previa)" con la nota de que en la fase 2 pedirán usuario y contraseña.
+- Se activan con `app.admin-preview.enabled` (variable `APP_ADMIN_PREVIEW_ENABLED`, `true` por defecto). Con `false` las rutas no existen (404) y la sección no aparece.
+- El módulo `admin/` solo habla con el módulo de lecciones a través de `GestionLeccionesService`, que aplica el mismo `ValidadorLeccion` que la carga inicial.
+
+Como cualquiera puede usarlas, se limitan para que no puedan tumbar el servicio:
+
+| Riesgo | Mitigación |
+|---|---|
+| Zip slip (`../`, rutas absolutas o con unidad) | Nada se escribe en disco y además el zip se rechaza completo |
+| Zip bomb | Máximo de 50 MB descomprimidos contando también las entradas ignoradas, 5 MB por archivo y 500 entradas; la lectura se corta al pasar el límite |
+| Agotar la memoria del plan gratuito (512 MB) | Máximo de 100 lecciones y 64 MB en memoria; subida de 10 MB como máximo |
+| Contenido malicioso en lecciones importadas | Las mismas defensas de ADR-003 y ADR-004: HTML escapado, URLs saneadas, imágenes con lista blanca y firma verificada, CSP |
+| Vandalismo (borrar lecciones de ejemplo) | Los cambios se pierden al reiniciar: un redespliegue restaura las 4 lecciones; en caso de abuso se apaga con la variable |
+
+### Alternativas consideradas
+
+| Opción | A favor | En contra |
+|---|---|---|
+| **Activas con límites (elegida)** | Cumple el requisito de la fase 1; el catedrático puede probarlas en la URL pública | Cualquiera puede modificar el catálogo hasta el siguiente reinicio |
+| Apagadas en la URL pública | Sin riesgo de vandalismo | El requisito de Configuración quedaría sin demostrar en el despliegue |
+| Clave compartida en una variable de entorno | Algo de control | Es autenticación improvisada, que la fase 1 excluye y que la fase 2 reemplaza |
+
+### Consecuencias
+
+- En la fase 2 solo hay que agregar una regla de Spring Security para `/api/admin/**` y quitar el aviso de "vista previa".
+- Sin sesiones ni cookies, hoy no hay riesgo de CSRF. Al agregar autenticación con cookie de sesión en la fase 2 habrá que activar la protección CSRF de Spring Security.
+
+---
+
 ## Decisiones funcionales
 
 | Decisión | Justificación |
@@ -327,7 +367,7 @@ Se necesita una URL pública estable, con presupuesto cero, desplegada desde Git
 |---|---|---|
 | Seguridad | CSP `default-src 'self'`, `nosniff`, `X-Frame-Options: DENY` y `Referrer-Policy` | Segunda barrera contra XSS y clickjacking. En la fase 2 pueden moverse al reverse proxy. |
 | Seguridad | Actuator expone solo `health` y sin detalles | No filtra configuración ni variables de entorno. |
-| Seguridad | Opciones administrativas bajo `/api/admin/**`, apagadas por defecto (`APP_ADMIN_PREVIEW_ENABLED`) | En la fase 2 basta una regla de Spring Security para ese prefijo. |
+| Seguridad | Importar, exportar y eliminar bajo `/api/admin/**`, con límites de tamaño y de memoria (ver ADR-009) | La fase 1 las pide funcionando; en la fase 2 basta una regla de Spring Security para ese prefijo. |
 | Errores | `@RestControllerAdvice` con un JSON uniforme `{timestamp, estado, error, mensaje, ruta}` y sin trazas | El frontend muestra `mensaje` tal cual y no se exponen detalles internos. |
 | Accesibilidad | Contraste WCAG AA en ambos temas (calculado), foco visible, diálogos nativos, áreas táctiles de 44 px, `prefers-reduced-motion` | Estudiantes en computadora, tablet y móvil, con distintas necesidades visuales. |
 | Tipografía | Atkinson Hyperlegible Next y Mono empaquetadas (OFL) | Legibilidad y distinción de caracteres parecidos; sin dependencias externas. |

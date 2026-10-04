@@ -13,6 +13,7 @@ Proyecto del curso Desarrollo Web, Universidad Mariano Gálvez de Guatemala. El 
 | Interfaz completa según los mocks (menú, lección activa, panel de lección, editor, botones, consola) | Compilar y Ejecutar con `guali-dev.jar` |
 | Lecciones › Abrir lección y Cerrar lección | Historial de sesión persistente |
 | Configuración: tamaño de letra (12–24 px) y tema claro/oscuro, solo en memoria | Base de datos MariaDB con JPA |
+| Configuración › Administración: importar lecciones (zip), exportarlas y eliminar una, en memoria | Autenticación de administradores para esas opciones |
 | Ayuda | Spring Security, administradores, estadísticas de visitas |
 | API REST de lecciones y health check para la nube | Separación en microservicios detrás de un API Gateway |
 
@@ -69,7 +70,7 @@ PORT=8090 ./mvnw spring-boot:run
 
 En PowerShell: `$env:PORT=8090; .\mvnw.cmd spring-boot:run`.
 
-Para probar las opciones administrativas en vista previa, agrega `APP_ADMIN_PREVIEW_ENABLED=true`.
+Las opciones de importar, exportar y eliminar lecciones están activas por defecto. Para ocultarlas, define `APP_ADMIN_PREVIEW_ENABLED=false`.
 
 ### Pruebas
 
@@ -109,6 +110,12 @@ Los pasos exactos para Render están en **[DEPLOY.md](DEPLOY.md)**. En resumen: 
 | GET | `/api/lecciones/{id}` | `{id, titulo, objetivo, html}` |
 | GET | `/api/lecciones/{id}/recursos/{archivo}` | La imagen (png, jpg, jpeg, gif o webp) |
 | GET | `/actuator/health` | `{"status":"UP"}` |
+| GET | `/api/admin/estado` | `{habilitado: true}` si las opciones de administración están activas |
+| POST | `/api/admin/lecciones/importar` | Zip en el campo multipart `archivo` → `{importadas, omitidas, avisos}` |
+| DELETE | `/api/admin/lecciones/{id}` | `204`; `404` si no existe |
+| GET | `/api/admin/lecciones/exportar` | `lecciones.zip` con todas las lecciones |
+
+Las rutas `/api/admin/**` no piden autenticación en la fase 1; en la fase 2 se protegerán con Spring Security.
 
 Los errores responden siempre con el mismo JSON:
 
@@ -133,6 +140,16 @@ Valores de `objetivo`: `COMPILAR_CON_ERROR`, `COMPILAR_EXITOSO`, `EJECUTAR_CON_E
 En el markdown, las imágenes se referencian con ruta relativa (`![Diagrama](diagrama.png)`); el servidor las reescribe hacia `/api/lecciones/{id}/recursos/diagrama.png`. Los bloques de código con lenguaje (` ```java `) se muestran numerados como en el editor, y los bloques sin lenguaje se muestran como salida de consola. El HTML escrito dentro del markdown se muestra como texto (no se ejecuta).
 
 Si una lección no cumple el formato, el servicio la omite y lo registra en el log al arrancar (`Lección omitida '...': motivo`).
+
+### Importar lecciones desde la interfaz
+
+En **Configuración › Administración › Importar lecciones (.zip)** se sube un zip con una carpeta por lección, con o sin la carpeta raíz `lecciones/` (el mismo formato que genera **Exportar lecciones**). Hay un ejemplo listo en [`docs/ejemplos/lecciones-extra.zip`](docs/ejemplos/lecciones-extra.zip).
+
+- Cada lección se valida con las mismas reglas de arriba; las inválidas se omiten y la consola dice por qué.
+- Una lección con el mismo nombre que otra existente la reemplaza.
+- Límites: zip de 10 MB, 500 entradas, 50 MB descomprimido, 5 MB por archivo; en memoria caben 100 lecciones y 64 MB.
+- Se rechazan rutas que intentan salir de su carpeta (`../`, rutas absolutas) y se ignoran `__MACOSX/` y los archivos ocultos.
+- Lo importado vive en memoria: se pierde al reiniciar el servidor (las 4 lecciones de ejemplo vuelven a cargarse).
 
 ## Documentación
 

@@ -6,18 +6,19 @@ No hay base de datos, migraciones ni usuarios existentes: el riesgo principal es
 
 ## Antes de desplegar
 
-- [x] `mvnw verify` local: 86 pruebas en verde (unitarias, `@WebMvcTest` y humo con la app completa).
+- [x] `mvnw verify` local: 118 pruebas en verde (unitarias, `@WebMvcTest` y humo con la app completa).
 - [x] El jar arranca (`Started ... in 2.3 s`) y carga `4 de 4` lecciones.
-- [x] Endpoints probados con curl: health `UP`, lista, detalle, imagen, 404 JSON, traversal rechazado (400), CSP presente, `/actuator/env` y `/api/admin/**` cerrados (404).
+- [x] Endpoints probados con curl: health `UP`, lista, detalle, imagen, 404 JSON, traversal rechazado (400), CSP presente, `/actuator/env` cerrado (404).
+- [x] Importar, exportar y eliminar lecciones probados en la interfaz (zip de ejemplo, zip inválido, eliminación con confirmación).
 - [x] Interfaz revisada en navegador: escritorio y móvil, temas claro y oscuro; flujos de abrir, cerrar (con y sin confirmación), tamaño de letra y ayuda.
 - [x] Puerto desde `PORT` (`server.port=${PORT:8080}`); health check en `/actuator/health`.
 - [x] Imagen con usuario sin privilegios (uid 10001) y memoria ajustada a 512 MB (`JAVA_TOOL_OPTIONS`).
 - [x] Sin secretos en el repositorio (no hay credenciales en la fase 1).
-- [x] Opciones administrativas apagadas en la URL pública: `APP_ADMIN_PREVIEW_ENABLED=false` en `render.yaml`.
+- [x] Importar, exportar y eliminar activos (`APP_ADMIN_PREVIEW_ENABLED=true`), con límites de tamaño y de memoria porque no tienen autenticación hasta la fase 2.
 - [x] Plan de rollback documentado en [DEPLOY.md](../DEPLOY.md#volver-a-una-versión-anterior).
 - [ ] `docker build` y `docker run` locales: **pendiente de instalar Docker Desktop**. Mientras tanto lo cubre el job `imagen` del CI.
 - [ ] CI en verde en GitHub (compilar y probar + imagen Docker).
-- [ ] Revisión de código final (`engineering:code-review`), antes de empaquetar la entrega.
+- [x] Revisión de código final (`engineering:code-review`): 2 ajustes menores del frontend corregidos.
 
 ## Despliegue
 
@@ -32,6 +33,7 @@ No hay base de datos, migraciones ni usuarios existentes: el riesgo principal es
   - Tamaño de letra y tema cambian y vuelven al inicial al recargar.
   - Compilar, Ejecutar e Historial muestran "Disponible en fase 2".
   - Ayuda abre y cierra con Esc.
+  - Configuración › Administración: importar `docs/ejemplos/lecciones-extra.zip`, verla en Abrir lección, eliminarla y exportar.
 
 ## Después de desplegar
 
@@ -44,6 +46,7 @@ No hay base de datos, migraciones ni usuarios existentes: el riesgo principal es
 - El health check falla y Render no pone la versión nueva en **Live** (Render mantiene la anterior; revisar logs antes de reintentar).
 - `/api/lecciones` devuelve menos de 4 lecciones (una lección quedó inválida; el log dice cuál).
 - La página carga sin estilos o sin JavaScript (por ejemplo, la CSP bloquea un recurso).
+- Alguien abusa de importar/eliminar en la URL pública: poner `APP_ADMIN_PREVIEW_ENABLED=false` en Render (se redespliega y vuelven las 4 lecciones de ejemplo).
 - Aparecen respuestas 5xx o `OutOfMemoryError` en los logs.
 
 Rollback: servicio → Events/Deploys → despliegue anterior → **Rollback**.

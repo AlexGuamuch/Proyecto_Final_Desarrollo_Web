@@ -52,6 +52,7 @@ El proyecto se entrega en dos fases. Este documento describe la fase 1 y la arqu
 | Interfaz gráfica general según los mocks | Compilar y Ejecutar con `guali-dev.jar` |
 | Lecciones › Abrir lección (carga una de las disponibles) y Cerrar lección | Panel Historial de Sesión, persistente |
 | Configuración: tamaño de letra y tema claro/oscuro, guardados solo en memoria | Persistencia en MariaDB con JPA |
+| Configuración: importar lecciones (zip), exportarlas y eliminar una, en memoria | Autenticación de administradores para esas opciones |
 | Ayuda | Seguridad: WAF, anti-DoS, CDN seguro, reverse proxy, autenticación de administradores |
 | Despliegue en la nube con URL pública | Administración: CRUD de administradores y estadísticas de visitas |
 
@@ -72,6 +73,9 @@ Compilar, Ejecutar e Historial están visibles pero sin acción, con el aviso "D
 | Aumentar o disminuir el tamaño de la fuente | A− / A+ de 12 a 24 px; afecta todo el texto |
 | Tema claro y oscuro | Tema "cuaderno" (claro) y "pizarra" (oscuro), con contraste WCAG AA |
 | Configuración solo en memoria | Variables de JavaScript; sin `localStorage`, `sessionStorage` ni cookies |
+| Importar un compendio (zip) | Configuración › Administración: valida cada lección, informa las omitidas y su motivo; protegido contra zip slip y zip bombs |
+| Eliminar una lección | Diálogo con la lista de lecciones y confirmación |
+| Exportar lecciones | Descarga `lecciones.zip` con el mismo formato que se importa |
 | Ayuda a criterio | Diálogo con pasos de uso, tipos de objetivo, ejemplos de mensajes y atajos |
 | Estructura de lección (`leccion.md`, `config.txt`, imágenes) | Carga desde el classpath con validación; 4 lecciones de ejemplo, una por objetivo |
 | Arquitectura cloud-native, MVC, REST | Servicio Spring Boot con capas MVC y API REST, en contenedor Docker con health check |
@@ -102,7 +106,7 @@ El editor es la "plana": cada línea de código cae sobre un renglón, con su n�
 
 ![Menú Configuración](capturas/escritorio-oscuro-configuracion.png)
 
-*Figura 4. Configuración: tamaño de letra y tema.*
+*Figura 4. Configuración: tamaño de letra, tema y administración (importar, exportar y eliminar lecciones).*
 
 ![Ayuda con los estados de la consola](capturas/ayuda-estados-consola.png)
 
@@ -125,7 +129,7 @@ El editor es la "plana": cada línea de código cae sobre un renglón, con su n�
 
 La fase 1 es un solo servicio, `lecciones-service`, que expone la API REST y sirve el frontend estático. Por dentro está organizado como **monolito modular** listo para separarse en microservicios en la fase 2:
 
-- Un paquete por módulo de negocio. Hoy existe `leccion/`; en la fase 2 se suman `historial/`, `ejecucion/` y `admin/`.
+- Un paquete por módulo de negocio. Hoy existen `leccion/` y `admin/` (importar, exportar y eliminar); en la fase 2 se suman `historial/` y `ejecucion/`.
 - Dentro de cada módulo, el patrón MVC por capas: `controller → service → repository → model/dto`.
 - El repositorio está detrás de la interfaz `LeccionRepository`. Hoy la implementa `InMemoryLeccionRepository` (`ConcurrentHashMap`); en la fase 2 la implementará JPA sin cambiar controllers ni services.
 - El frontend (HTML, CSS y JavaScript con módulos ES, sin frameworks) llama rutas `/api/<módulo>/**`, las mismas que expondrá el API Gateway de la fase 2.
@@ -225,6 +229,11 @@ Una sesión se marca **Completada** cuando alguno de sus intentos cumple el obje
 *Decisión:* `<textarea>` sin autocompletado, corrector, cierre de llaves ni resaltado de sintaxis. Solo agrega Tab = 4 espacios, números de línea y renglón actual; Esc y Tab salen del editor para no atrapar el foco del teclado.
 *Alternativas:* CodeMirror o Monaco, que traen justo las ayudas que se quieren evitar.
 
+**ADR-009. Importar, exportar y eliminar activos en la fase 1, sin autenticación.**
+*Contexto:* el enunciado pide que las opciones de Configuración funcionen en memoria en la fase 1, pero excluye la seguridad.
+*Decisión:* funcionan bajo `/api/admin/**` y se pueden apagar con `APP_ADMIN_PREVIEW_ENABLED`. Para que nadie pueda tumbar el servicio hay límites: zip de 10 MB, 500 entradas, 50 MB descomprimidos, 5 MB por archivo, 100 lecciones y 64 MB en memoria. Las rutas que intentan salir de su carpeta rechazan el zip completo.
+*Consecuencia:* el catedrático puede probarlas en la URL pública; los cambios se pierden al reiniciar. En la fase 2 se agrega Spring Security sobre `/api/admin/**`.
+
 **ADR-008. Render con Docker.**
 *Contexto:* URL pública, presupuesto cero, despliegue desde GitHub.
 *Decisión:* blueprint `render.yaml`, imagen multi-stage con usuario sin privilegios, health check y despliegue solo cuando pasa el CI.
@@ -248,7 +257,7 @@ Una sesión se marca **Completada** cuando alguno de sus intentos cumple el obje
 
 | Área | Decisión |
 |---|---|
-| Seguridad | CSP `default-src 'self'`, `nosniff`, `X-Frame-Options: DENY`; Actuator expone solo `health`; errores JSON sin trazas; opciones administrativas bajo `/api/admin/**`, apagadas por defecto, listas para Spring Security. |
+| Seguridad | CSP `default-src 'self'`, `nosniff`, `X-Frame-Options: DENY`; Actuator expone solo `health`; errores JSON sin trazas; importar, exportar y eliminar bajo `/api/admin/**` con límites de tamaño y memoria, listos para Spring Security. |
 | Accesibilidad | Contraste WCAG AA verificado en ambos temas, foco visible, diálogos que cierran con Esc, áreas táctiles de 44 px, etiquetas ARIA y respeto de `prefers-reduced-motion`. |
 | Uso sin internet | Sin CDNs: fuentes, íconos y scripts se sirven desde la aplicación. |
 | Rendimiento | Lecciones en memoria, compresión HTTP y caché de imágenes. El servicio arranca en unos 2 segundos en local. |
@@ -263,6 +272,9 @@ Una sesión se marca **Completada** cuando alguno de sus intentos cumple el obje
 | GET | `/api/lecciones/{id}` | `{id, titulo, objetivo, html}` |
 | GET | `/api/lecciones/{id}/recursos/{archivo}` | Imagen de la lección |
 | GET | `/actuator/health` | `{"status":"UP"}` |
+| POST | `/api/admin/lecciones/importar` | Zip (multipart `archivo`) → `{importadas, omitidas, avisos}` |
+| DELETE | `/api/admin/lecciones/{id}` | `204`, o `404` si no existe |
+| GET | `/api/admin/lecciones/exportar` | `lecciones.zip` |
 
 Todos los errores responden con el mismo formato:
 
@@ -278,18 +290,19 @@ Todos los errores responden con el mismo formato:
 | Unitarias | Parser de `config.txt` (formatos válidos, BOM, CRLF, valores inválidos), validación de lecciones, renderizado seguro del markdown y reescritura de imágenes, path traversal |
 | Integración | Carga de las lecciones del classpath, incluidas lecciones inválidas que se omiten |
 | API (`@WebMvcTest`) | Lista, detalle, imágenes, errores 400/404/405 con JSON y cabeceras de seguridad |
+| Importar y exportar | Zip slip, zip bombs (también en entradas ignoradas), límites de entradas y de tamaño, `__MACOSX` y ocultos, con y sin carpeta raíz, lecciones inválidas omitidas, topes de memoria, exportar → importar |
 | Humo (`@SpringBootTest`) | La aplicación completa en un puerto real: health, 4 lecciones, frontend y rutas codificadas rechazadas por el servidor |
 | Manual | Flujos de la interfaz en escritorio, tablet y móvil, en ambos temas (capturas de la sección 4) |
-| Despliegue | `scripts/verificar-despliegue.sh <URL>`: 17 comprobaciones contra la URL pública |
+| Despliegue | `scripts/verificar-despliegue.sh <URL>`: 18 comprobaciones contra la URL pública |
 
-Resultado: **86 pruebas automáticas en verde** con `mvnw verify`.
+Resultado: **118 pruebas automáticas en verde** con `mvnw verify`.
 
 ## 11. Despliegue y operación
 
 - **Plataforma:** Render, plan gratuito, servicio web Docker definido en `render.yaml`.
 - **URL pública:** la anotada en la carátula.
 - **Integración continua:** GitHub Actions ejecuta `mvnw verify`, construye la imagen Docker, la ejecuta y comprueba `/actuator/health`. Render despliega solo si estas verificaciones pasan.
-- **Variables:** `PORT` (la define Render) y `APP_ADMIN_PREVIEW_ENABLED=false`.
+- **Variables:** `PORT` (la define Render) y `APP_ADMIN_PREVIEW_ENABLED=true` (importar, exportar y eliminar; con `false` se ocultan).
 - **Rollback:** desde el panel de Render se vuelve al despliegue anterior. Al no haber base de datos, es inmediato.
 - **Arranque en frío:** el plan gratuito apaga el servicio tras 15 minutos sin visitas; la primera visita tarda alrededor de un minuto.
 

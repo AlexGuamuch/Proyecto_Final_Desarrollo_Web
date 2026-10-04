@@ -53,7 +53,13 @@ Debe responder `{"status":"UP","groups":["liveness","readiness"]}`. Luego:
 curl https://lecciones-service.onrender.com/api/lecciones
 ```
 
-Debe listar las 4 lecciones. Abre la URL en el navegador, prueba **Lecciones › Abrir lección** y cambia el tema en **Configuración**.
+Debe listar las 4 lecciones. Abre la URL en el navegador, prueba **Lecciones › Abrir lección**, cambia el tema en **Configuración** e importa `docs/ejemplos/lecciones-extra.zip` desde **Configuración › Administración**: debe aparecer `leccion-05-condicionales` en Abrir lección.
+
+También puedes correr todas las comprobaciones de una vez:
+
+```bash
+./scripts/verificar-despliegue.sh https://lecciones-service.onrender.com
+```
 
 Anota la URL en la carátula de `docs/documentacion-fase1.md`.
 
@@ -62,7 +68,7 @@ Anota la URL en la carátula de `docs/documentacion-fase1.md`.
 | Variable | Valor en Render | Para qué sirve |
 |---|---|---|
 | `PORT` | la define Render | Puerto HTTP del servicio |
-| `APP_ADMIN_PREVIEW_ENABLED` | `false` | Activa las opciones administrativas en vista previa (importar, exportar y eliminar lecciones). No tienen autenticación hasta la fase 2: déjala en `false` en la URL pública salvo para una demostración puntual. |
+| `APP_ADMIN_PREVIEW_ENABLED` | `true` | Muestra en Configuración las opciones de importar, exportar y eliminar lecciones, que la fase 1 pide funcionando en memoria. No tienen autenticación hasta la fase 2; con `false` se ocultan y `/api/admin/**` responde 404. |
 | `JAVA_TOOL_OPTIONS` | (definida en el Dockerfile) | Ajustes de memoria para los 512 MB del plan gratuito |
 
 Para cambiar una variable: servicio → **Environment** → editar → **Save Changes** (Render vuelve a desplegar).
